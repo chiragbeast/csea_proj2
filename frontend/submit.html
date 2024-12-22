@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Submit File</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+
+<body class="bg-gray-100">
+    <div class="flex justify-center items-center h-screen">
+        <form id="submitFileForm" class="bg-white shadow-lg rounded-lg p-8 max-w-sm">
+            <h1 class="text-2xl font-bold mb-6">Submit File</h1>
+            <input type="text" id="filename" placeholder="Filename"
+                class="w-full mb-4 p-2 border border-gray-300 rounded">
+            <input type="file" id="file" class="w-full mb-4 p-2 border border-gray-300 rounded">
+            <input type="text" id="expiry" placeholder="Expiry (e.g., 2d, 5h)"
+                class="w-full mb-4 p-2 border border-gray-300 rounded">
+            <button type="submit" class="bg-green-500 text-white py-2 px-4 rounded hover:bg-green-600">Upload</button>
+        </form>
+    </div>
+    <div id="fileIdDisplay" class="mt-6 p-4 bg-blue-100 rounded hidden text-center">
+        <p class="text-lg font-bold">File uploaded successfully! Your File ID is:</p>
+        <p class="text-xl font-mono bg-white inline-block p-2 rounded mt-2" id="fileId"></p>
+        <button id="copyFileId" class="mt-4 bg-gray-500 text-white py-2 px-4 rounded hover:bg-gray-600">Copy File ID</button>
+        <p class="text-sm text-red-500 mt-2">Do not share your File ID with others.</p>
+        <button id="goToDashboard" class="mt-4 bg-green-500 text-white py-2 px-4 rounded hover:bg-green-600">Go to Dashboard</button>
+    </div>
+    <script>
+        // Handle file upload
+        document.getElementById('submitFileForm').addEventListener('submit', function (event) {
+            event.preventDefault();
+
+            const fileInput = document.getElementById('file'); // Match the correct ID
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+            formData.append('filename', document.getElementById('filename').value); // Add filename if needed
+            formData.append('expiry', document.getElementById('expiry').value); // Add expiry if needed
+
+            const token = localStorage.getItem('token'); // Get token from storage
+
+            if (!token) {
+                alert('Authorization token is missing!');
+                return;
+            }
+
+            fetch('http://localhost:3000/api/files/upload', {
+                method: 'POST',
+                body: formData, // FormData contains the file to be uploaded
+                headers: {
+                    'Authorization': `Bearer ${token}`, // Attach token in Authorization header
+                },
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const fileId = data.fileId;
+
+                        if (!fileId) {
+                            console.error('File ID not found in response');
+                            alert('File ID is missing in the response');
+                            return;
+                        }
+
+                        document.getElementById('fileId').textContent = fileId; // Set the fileId in the span
+                        document.getElementById('fileIdDisplay').classList.remove('hidden'); // Show the fileId display div
+                    } else {
+                        alert('Error: ' + data.message);
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+        });
+
+        // Copy File ID to Clipboard
+        document.getElementById('copyFileId').addEventListener('click', function () {
+            const fileIdText = document.getElementById('fileId').textContent;
+            navigator.clipboard.writeText(fileIdText)
+                .then(() => {
+                    alert('File ID copied to clipboard!');
+                })
+                .catch(err => {
+                    console.error('Error copying File ID:', err);
+                });
+        });
+
+        // Navigate to Dashboard
+        document.getElementById('goToDashboard').addEventListener('click', function () {
+            window.location.href = '/frontend/dashboard.html';
+        });
+    </script>
+</body>
+
+</html>

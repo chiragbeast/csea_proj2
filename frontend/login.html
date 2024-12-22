@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+
+<body class="bg-gray-100">
+    <div class="flex justify-center items-center h-screen">
+        <form id="loginForm" class="bg-white shadow-lg rounded-lg p-8 max-w-sm">
+            <h1 class="text-2xl font-bold mb-6">Login</h1>
+            <input type="username" id="username" placeholder="Username" class="w-full mb-4 p-2 border border-gray-300 rounded">
+            <input type="password" id="password" placeholder="Password"
+                class="w-full mb-6 p-2 border border-gray-300 rounded">
+            <button type="submit" class="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600">Login</button>
+        </form>
+    </div>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            fetch('http://localhost:3000/api/auth/login', {
+                method: 'POST',
+                body: JSON.stringify({
+                    username: username,
+                    password: password
+                }),
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.token) {
+                        // Store the token in localStorage or sessionStorage
+                        localStorage.setItem('token', data.token);
+                        // Redirect to dashboard.html
+                        window.location.href = '/frontend/dashboard.html';
+                    } else {
+                        console.log('Login failed');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+
+        });
+    </script>
+</body>
+
+</html>

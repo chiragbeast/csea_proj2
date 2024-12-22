@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Update File</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-100 min-h-screen flex items-center justify-center">
+    <div class="w-full max-w-md bg-white rounded-lg shadow-md p-6">
+        <h1 class="text-2xl font-bold text-center text-gray-700 mb-4">Update File</h1>
+        <form id="updateForm" class="space-y-4">
+            <div>
+                <label for="fileId" class="block text-gray-700 font-medium">File ID</label>
+                <input type="text" id="fileId" class="w-full mt-1 px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Enter File ID">
+            </div>
+            <div>
+                <label for="newFile" class="block text-gray-700 font-medium">New File</label>
+                <input type="file" id="newFile" class="w-full mt-1 px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            <div>
+                <label for="newPassword" class="block text-gray-700 font-medium">New Password (Optional)</label>
+                <input type="password" id="newPassword" class="w-full mt-1 px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Enter New Password">
+            </div>
+            <button type="submit" class="w-full py-2 px-4 bg-blue-500 text-white font-bold rounded-md hover:bg-blue-600">Update</button>
+        </form>
+    </div>
+
+    <script>
+        document.getElementById('updateForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const fileId = document.getElementById('fileId').value;
+            const newFile = document.getElementById('newFile').files[0];
+            const newPassword = document.getElementById('newPassword').value;
+
+            const formData = new FormData();
+            formData.append('file', newFile);
+            formData.append('password', newPassword);
+
+            try {
+                const response = await fetch(`/api/files/update/${fileId}`, {
+                    method: 'PUT',
+                    body: formData,
+                });
+
+                const data = await response.json();
+                if (response.ok) {
+                    alert('File updated successfully.');
+                } else {
+                    alert(`Error: ${data.message}`);
+                }
+            } catch (error) {
+                alert('Error updating the file.');
+                console.error(error);
+            }
+        });
+    </script>
+</body>
+
+</html>

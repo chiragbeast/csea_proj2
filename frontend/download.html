@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Download File</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-100 min-h-screen flex items-center justify-center">
+    <div class="w-full max-w-md bg-white rounded-lg shadow-md p-6">
+        <h1 class="text-2xl font-bold text-center text-gray-700 mb-4">Download File</h1>
+        <form id="downloadForm" class="space-y-4">
+            <div>
+                <label for="fileId" class="block text-gray-700 font-medium">File ID</label>
+                <input type="text" id="fileId"
+                    class="w-full mt-1 px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Enter File ID">
+            </div>
+            <div>
+                <label for="password" class="block text-gray-700 font-medium">Password (Optional)</label>
+                <input type="password" id="password"
+                    class="w-full mt-1 px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Enter Password">
+            </div>
+            <button type="submit"
+                class="w-full py-2 px-4 bg-blue-500 text-white font-bold rounded-md hover:bg-blue-600">Download</button>
+        </form>
+    </div>
+
+    <script>
+        document.getElementById('downloadForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const fileId = document.getElementById('fileId').value;
+            const password = document.getElementById('password').value;
+
+           
+                const response = await fetch(`/api/files/download/${fileId}`, {
+                    method: 'GET',
+                });
+
+                if (!response.ok) {
+                    const { message } = await response.json();
+                    alert(`Error: ${message}`);
+                    console.error('Response error:', response.status, message);
+                    return;
+                }
+
+                // Handle the file download
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'file.png'; // Change to dynamically use the file's original name if needed
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+            
+
+            });
+    </script>
+</body>
+
+</html>
